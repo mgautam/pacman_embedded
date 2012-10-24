@@ -40,6 +40,8 @@ int monster_next_position[NUM_MONSTERS] = { MONSTER_BIRTH_CENTER - 2,
 					       MONSTER_BIRTH_CENTER + 1,
 					       MONSTER_BIRTH_CENTER + 2
 };
+
+#define KILLING_TIME_LIMIT 21
 extern int monster_killer_time;
 int monster_killer_time = false;
 extern int score;
@@ -48,6 +50,9 @@ char monster_move[NUM_MONSTERS] = {0};
 
 static void runGame ( char inputCommand )
 {
+  if (monster_killer_time)
+    monster_killer_time--;
+
   int player_present_position = player_next_position;// previous next position has present position
   player_next_position = findNextPosition (player_present_position, inputCommand);
 
@@ -60,7 +65,17 @@ static void runGame ( char inputCommand )
 	  int monster_present_position = monster_next_position[monster_index]; // previous next position has present position
 
 	  monster_next_position[monster_index] = findNextPosition ( monster_present_position, monster_move[monster_index] );
-	  if (monster_next_position[monster_index] == monster_present_position)
+	  if (monster_next_position[monster_index] == monster_present_position
+	      || !(map[monster_present_position-1] == VWAL && map[monster_present_position+1] == VWAL
+		   || map[monster_present_position-1] == HWAL && map[monster_present_position+1] == HWAL
+		   || map[monster_present_position-1] == VWAL && map[monster_present_position+1] == HWAL
+		   || map[monster_present_position-1] == HWAL && map[monster_present_position+1] == VWAL
+		   || map[monster_present_position-MAP_WIDTH] == HWAL && map[monster_present_position+MAP_WIDTH] == HWAL 
+		   || map[monster_present_position-MAP_WIDTH] == HWAL && map[monster_present_position+MAP_WIDTH] == VWAL 
+		   || map[monster_present_position-MAP_WIDTH] == VWAL && map[monster_present_position+MAP_WIDTH] == HWAL 
+		   || map[monster_present_position-MAP_WIDTH] == VWAL && map[monster_present_position+MAP_WIDTH] == VWAL 
+		   )	      
+	      )
 	  // Random Direction Finder is called only when it hits a corner or wall
 	    {
 	      monster_move[monster_index] = randomDirectionFinder ();
@@ -109,7 +124,7 @@ static void runGame ( char inputCommand )
 	{
 	  map[player_next_position] = VOID;
 	  // Player ate Power tablet, now it's monster killer time.
-	  monster_killer_time = true;
+	  monster_killer_time = KILLING_TIME_LIMIT;
 	}
     }
 }

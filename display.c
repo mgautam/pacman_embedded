@@ -134,7 +134,7 @@ extern int score;
 
 static int previous_remaining_lives = 0;
 static int previous_pause = false;
-static int previous_killer_type = 0;
+static int previous_killer_time = 0;
 static int previous_score = 0;
 
 #define ASCII_SCORE_LENGTH 5
@@ -165,20 +165,26 @@ static void updateStatistics (void)
       previous_pause = game_paused ;
     }
 
-  if (monster_killer_time != previous_killer_type)
+  if (monster_killer_time != previous_killer_time)
     {
-      movePainterTo (MAP_HEIGHT+1,19);
+      movePainterTo (MAP_HEIGHT+1,21);
       
       if (monster_killer_time)
 	{
-	  write (fd, "K",1);
+	  write (fd, "Kill_Time: ",11);
+	  previous_killer_time = monster_killer_time;
+	  char ascii_time[2];
+	  ascii_time[1] = previous_killer_time % 10 + NUM_ASCII_OFFSET;
+	  previous_killer_time /= 10;
+	  ascii_time[0] = previous_killer_time % 10 + NUM_ASCII_OFFSET;
+	  write (fd, ascii_time,2);
 	}
       else
 	{
-	  write (fd, " ",1);
+	  write (fd, "              ",13);
 	}
     
-      previous_killer_type = monster_killer_time;    
+      previous_killer_time = monster_killer_time;    
     }
 
   if (previous_score != score)
