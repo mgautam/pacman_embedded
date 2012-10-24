@@ -1,9 +1,9 @@
+#include "config.h"
 #include "inputEncoder.h"
 #include "map.h"
 #include "mover.h"
 #include "GameRules.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 static int state = 1;
@@ -15,16 +15,14 @@ static int randomDirectionFinder (void)
 
 
 
-#define false 0
-#define true 1
-
-static int remaining_lives = 3;
+extern int remaining_lives;
+int remaining_lives = 3;
 static int remaining_food = TOTAL_FOOD;
 
 #define NUM_MONSTERS 5
 #define PLAYER_BIRTH_POSITION 17*MAP_WIDTH+MAP_WIDTH/2
 #define MONSTER_BIRTH_CENTER 14*MAP_WIDTH+MAP_WIDTH/2
-#define POINT_PER_MONSTER_KILLED 200
+#define POINT_PER_MONSTER_KILLED 20
 
 
 extern int player_next_position;
@@ -42,6 +40,7 @@ int monster_next_position[NUM_MONSTERS] = { MONSTER_BIRTH_CENTER - 2,
 					       MONSTER_BIRTH_CENTER + 1,
 					       MONSTER_BIRTH_CENTER + 2
 };
+extern int monster_killer_time;
 int monster_killer_time = false;
 extern int score;
 int score = 0;
@@ -51,7 +50,7 @@ static void runGame ( char inputCommand )
 {
   int player_present_position = player_next_position;// previous next position has present position
   player_next_position = findNextPosition (player_present_position, inputCommand);
-  printf ("Player Present:%d Direction:%d Next:%d\n", player_present_position, inputCommand, player_next_position);
+
 
   
   int monster_player_touch = false;
@@ -77,7 +76,7 @@ static void runGame ( char inputCommand )
 
 	  // Monsters run over each other but then the separate. Measures can be taken so they don't overlap at any instant.
 
-	  printf ("Monster%d Present:%d Direction: %d Next:%d\n", monster_index, monster_present_position, monster_move[monster_index], monster_next_position[monster_index]);
+
 
 	  if (monster_next_position[monster_index] == player_next_position)
 	    {
@@ -117,18 +116,17 @@ static void runGame ( char inputCommand )
 
 
 
-static int game_paused = false;
+extern int game_paused;
+int game_paused = false;
 
 void GameEngine (char inputCommand)
 {
-  printf ("REmaining lives: %d\n", remaining_lives);
   if ( game_paused )
     {
       if (inputCommand == PAUSE)
 	// Here PAUSE means RESUME
 	{
 	  game_paused = false;
-	  printf ("GAME RESUMED\n");
 	}
       else
 	{
@@ -138,17 +136,14 @@ void GameEngine (char inputCommand)
   else if (inputCommand == PAUSE)
     {
       game_paused = true;
-      printf ("GAME PAUSED\n");
       return;
     }
   else if ( remaining_food == 0 )
     {
-      printf ("GAME COMPLETED\n");
       exit (0);
     }
   else if ( inputCommand == QUIT || remaining_lives <= 0 )
     {
-      printf ("GAME QUIT\n");
       exit (0);
     }
   else

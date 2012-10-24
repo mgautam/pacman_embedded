@@ -21,7 +21,7 @@ int main (int argc, char **argv)
   updateDisplay ();
 
   int read_file = open (SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
-  fcntl (read_file, F_SETFL, 0);
+  //fcntl (read_file, F_SETFL, 0);
   
   if (read_file == -1)
     printf ("could not open port\n");
@@ -49,7 +49,8 @@ int main (int argc, char **argv)
 
 	  GameEngine (encodedByte);
 	  updateDisplay ();
-	  
+
+	  usleep (500000);
 	}
       
       close (read_file);

@@ -2,7 +2,7 @@
 #include "map.h"
 #include "mover.h"
 
-#include <stdio.h>
+
 
 int findNextPosition (int present_position, char direction)
 {
