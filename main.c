@@ -1,3 +1,4 @@
+#include "config.h"
 #include "inputEncoder.h"
 #include "GameRules.h"
 #include "mover.h"
@@ -19,7 +20,7 @@ int main (int argc, char **argv)
   displayMap ();
   updateDisplay ();
 
-  int read_file = open ("/dev/ttyS1", O_RDWR | O_NOCTTY | O_NDELAY);
+  int read_file = open (SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
   fcntl (read_file, F_SETFL, 0);
   
   if (read_file == -1)
@@ -46,7 +47,7 @@ int main (int argc, char **argv)
 	  else	  
 	    encodedByte = serial2nibble (input);
 
-	  printf ("Read byte: %d\n",(int)input);		  
+	  printf ("Read byte: %d -> %d\n",(int)input, (int)encodedByte);		  
 	  
 	  GameEngine (encodedByte);
 	  updateDisplay ();

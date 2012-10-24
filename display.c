@@ -1,3 +1,4 @@
+#include "config.h"
 #include "map.h"
 #include "display.h"
 
@@ -14,7 +15,7 @@ int fd = -1;
 
 void displayMap (void)
 {
-  fd = open ("/dev/ttyS1", O_RDWR | O_NOCTTY | O_NDELAY);
+  fd = open (SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
   
   if (fd == -1)
     printf ("could not open port\n");
@@ -53,7 +54,7 @@ void displayMap (void)
 		}
 	    }
 	  write (fd,&carriage_return,2);
-	  // write (fd,&line_feed,2);
+	  //write (fd,&line_feed,2);
 	}
               
       close (fd);
@@ -117,12 +118,12 @@ static void write_to_display_buffer (int mapPosition, char *graphic)
 extern int player_next_position;
 extern int monster_next_position[NUM_MONSTERS];
 
-static int player_present_position = 0;
-static int monster_present_position[NUM_MONSTERS] = {0};
+static int player_present_position = 13*MAP_WIDTH;
+static int monster_present_position[NUM_MONSTERS] = {13*MAP_WIDTH};
 
 void updateDisplay (void)
 {
-  int fd = open ("/dev/ttyS1", O_RDWR | O_NOCTTY | O_NDELAY);
+  int fd = open (SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
   
   if (fd == -1)
     printf ("could not open port\n");

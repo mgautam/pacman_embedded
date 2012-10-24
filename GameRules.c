@@ -3,6 +3,7 @@
 #include "mover.h"
 #include "GameRules.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 static int state = 1;
@@ -49,6 +50,8 @@ static void runGame ( char inputCommand )
 {
   int player_present_position = player_next_position;// previous next position has present position
   player_next_position = findNextPosition (player_present_position, inputCommand);
+  printf ("Player Present:%d Next:%d\n", player_present_position, player_next_position);
+
   
   int monster_player_touch = false;
   
@@ -58,6 +61,9 @@ static void runGame ( char inputCommand )
 	  monster_next_position[monster_index] = findNextPosition ( monster_present_position, randomDirectionFinder () );
 	  // Random Direction Finder can be called only when it hits a corner or wall
 	  // Monsters run over each other but then the separate. Measures can be taken so they don't overlap at any instant.
+
+	  printf ("Monster%d Present:%d Next:%d\n", monster_index, monster_present_position, monster_next_position[monster_index]);
+
 	  if (monster_next_position[monster_index] == player_next_position)
 	    {
 	      monster_player_touch = true;
@@ -100,33 +106,35 @@ static int game_paused = false;
 
 void GameEngine (char inputCommand)
 {
+  printf ("REmaining lives: %d\n", remaining_lives);
   if ( game_paused )
     {
       if (inputCommand == PAUSE)
 	// Here PAUSE means RESUME
 	{
 	  game_paused = false;
+	  printf ("GAME RESUMED\n");
 	}
       else
 	{
 	  return;
 	}
     }
-
-
-  if ( remaining_food == 0 )
-    {
-      // GAME COMPLETED
-      exit (0);
-    }
-  if ( inputCommand == QUIT || remaining_lives <= 0 )
-    {
-      exit (0);
-    }
   else if (inputCommand == PAUSE)
     {
       game_paused = true;
+      printf ("GAME PAUSED\n");
       return;
+    }
+  else if ( remaining_food == 0 )
+    {
+      printf ("GAME COMPLETED\n");
+      exit (0);
+    }
+  else if ( inputCommand == QUIT || remaining_lives <= 0 )
+    {
+      printf ("GAME QUIT\n");
+      exit (0);
     }
   else
     {
