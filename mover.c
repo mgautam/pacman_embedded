@@ -2,13 +2,15 @@
 #include "map.h"
 #include "mover.h"
 
+#include <stdio.h>
+
 int findNextPosition (int present_position, char direction)
 {
-  if ( present_position = 14*MAP_WIDTH && direction == LEFT )
+  if ( present_position == 14*MAP_WIDTH && direction == LEFT )
     {// if on the left end in the 15th row
       return 15*MAP_WIDTH - 1; // Enter the right side
     }
-  else if ( present_position = 15*MAP_WIDTH-1 && direction == RIGHT )
+  else if ( present_position == 15*MAP_WIDTH-1 && direction == RIGHT )
     {// if on the right end in the 15th row
       return 14*MAP_WIDTH; // Enter the left side
     }

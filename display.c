@@ -105,7 +105,7 @@ static void write_to_display_buffer (int mapPosition, char *graphic)
   int row = mapPosition / MAP_WIDTH;
   int col = mapPosition % MAP_WIDTH;
 
-  movePainterTo (row,WIDTH_OF_EACH_OBJECT*col);
+  movePainterTo (row+1,WIDTH_OF_EACH_OBJECT*col+1); // +1 is just a hack, try to know why +1 was required.
 
   write (fd, graphic, WIDTH_OF_EACH_OBJECT);
 }

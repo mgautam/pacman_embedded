@@ -47,12 +47,9 @@ int main (int argc, char **argv)
 	  else	  
 	    encodedByte = serial2nibble (input);
 
-	  printf ("Read byte: %d -> %d\n",(int)input, (int)encodedByte);		  
-	  
 	  GameEngine (encodedByte);
 	  updateDisplay ();
 	  
-	  sleep (1);
 	}
       
       close (read_file);
