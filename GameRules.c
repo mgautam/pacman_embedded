@@ -51,59 +51,66 @@ char monster_move[NUM_MONSTERS] = {0};
 
 static int randomDirectionFinder (int monster_index)
 {
-  int player_row = player_next_position / MAP_WIDTH;
-  int player_col = player_next_position % MAP_WIDTH;
-
-  int monster_row =  monster_next_position[monster_index] / MAP_WIDTH;
-  int monster_col =  monster_next_position[monster_index] %  MAP_WIDTH;
-
-  int priority_distribution[4];
-  
-  if (monster_row < player_row && monster_col < player_col)
-    {
-      priority_distribution[DOWN] = 40;
-      priority_distribution[UP] = 10;
-      priority_distribution[RIGHT] = 40;
-      priority_distribution[LEFT] = 10;
-    }
-  else if (monster_row < player_row && monster_col >= player_col)
-    {
-      priority_distribution[DOWN] = 40;
-      priority_distribution[UP] = 10;
-      priority_distribution[RIGHT] = 10;
-      priority_distribution[LEFT] = 40;
-    }
-  else if (monster_row >= player_row && monster_col < player_col)
-    {
-      priority_distribution[DOWN] = 10;
-      priority_distribution[UP] = 40;
-      priority_distribution[RIGHT] = 40;
-      priority_distribution[LEFT] = 10;
-    }
-  else // if (monster_row >= player_row && monster_col >= player_col)
-    {
-      priority_distribution[DOWN] = 10;
-      priority_distribution[UP] = 40;
-      priority_distribution[RIGHT] = 10;
-      priority_distribution[LEFT] = 40;
-    }
 
   int uniformRandomNumber = uniformRandomNumberGenerator ();
 
-  int cumulative_probability = 100;
-  int intelligent_direction;
-  for (int direction = 3; direction >= 0; direction--)
+  if (uniformRandomNumber % 2 == 0) // 50% probability of complete randomness
+    return (uniformRandomNumber/2) % 4;
+  else // 50% probability of partial randomness based on player position
     {
-      cumulative_probability -= priority_distribution[direction];
-      if (uniformRandomNumber >= cumulative_probability)
+      int player_row = player_next_position / MAP_WIDTH;
+      int player_col = player_next_position % MAP_WIDTH;
+      
+      int monster_row =  monster_next_position[monster_index] / MAP_WIDTH;
+      int monster_col =  monster_next_position[monster_index] %  MAP_WIDTH;
+      
+      int priority_distribution[4];
+      
+      if (monster_row < player_row && monster_col < player_col)
 	{
-	  intelligent_direction = direction;
-	  break;
+	  priority_distribution[DOWN] = 40;
+	  priority_distribution[UP] = 10;
+	  priority_distribution[RIGHT] = 40;
+	  priority_distribution[LEFT] = 10;
 	}
-    }  
-
-  return intelligent_direction;// uniformRandomNumber;//
-
+      else if (monster_row < player_row && monster_col >= player_col)
+	{
+	  priority_distribution[DOWN] = 40;
+	  priority_distribution[UP] = 10;
+	  priority_distribution[RIGHT] = 10;
+	  priority_distribution[LEFT] = 40;
+	}
+      else if (monster_row >= player_row && monster_col < player_col)
+	{
+	  priority_distribution[DOWN] = 10;
+	  priority_distribution[UP] = 40;
+	  priority_distribution[RIGHT] = 40;
+	  priority_distribution[LEFT] = 10;
+	}
+      else // if (monster_row >= player_row && monster_col >= player_col)
+	{
+	  priority_distribution[DOWN] = 10;
+	  priority_distribution[UP] = 40;
+	  priority_distribution[RIGHT] = 10;
+	  priority_distribution[LEFT] = 40;
+	}
+      
+      
+      
+      int cumulative_probability = 100;
+      int intelligent_direction;
+      for (int direction = 3; direction >= 0; direction--)
+	{
+	  cumulative_probability -= priority_distribution[direction];
+	  if (uniformRandomNumber >= cumulative_probability)
+	    {
+	      intelligent_direction = direction;
+	      break;
+	    }
+	}  
+      
+      return intelligent_direction;// uniformRandomNumber;//
+    }
 }
 
 
