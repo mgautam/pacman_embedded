@@ -35,6 +35,7 @@ char serial2nibble (char serialIn)
     }
   else
     {
+      return -1;
     }
 
 }

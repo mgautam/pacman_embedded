@@ -7,10 +7,10 @@
 #include <stdlib.h>
 
 static int state = 1;
-static int randomDirectionFinder (void)
+static int uniformRandomNumberGenerator (void)
 {
   state = (state*2*state+1) % 7919;// 1000th Prime Number
-  return state % 4;
+  return (state * 100) / 7919;// Size of int might give problems on 8051
 }
 
 
@@ -20,7 +20,8 @@ int remaining_lives = 3;
 static int remaining_food = TOTAL_FOOD;
 
 #define NUM_MONSTERS 5
-#define PLAYER_BIRTH_POSITION 17*MAP_WIDTH+MAP_WIDTH/2
+#define PLAYER_BIRTH_POSITION (MAP_HEIGHT-1)*MAP_WIDTH-2
+//17*MAP_WIDTH+MAP_WIDTH/2
 #define MONSTER_BIRTH_CENTER 14*MAP_WIDTH+MAP_WIDTH/2
 #define POINT_PER_MONSTER_KILLED 20
 
@@ -47,6 +48,64 @@ int monster_killer_time = false;
 extern int score;
 int score = 0;
 char monster_move[NUM_MONSTERS] = {0};
+
+static int randomDirectionFinder (int monster_index)
+{
+  int player_row = player_next_position / MAP_WIDTH;
+  int player_col = player_next_position % MAP_WIDTH;
+
+  int monster_row =  monster_next_position[monster_index] / MAP_WIDTH;
+  int monster_col =  monster_next_position[monster_index] %  MAP_WIDTH;
+
+  int priority_distribution[4];
+  
+  if (monster_row < player_row && monster_col < player_col)
+    {
+      priority_distribution[DOWN] = 40;
+      priority_distribution[UP] = 10;
+      priority_distribution[RIGHT] = 40;
+      priority_distribution[LEFT] = 10;
+    }
+  else if (monster_row < player_row && monster_col >= player_col)
+    {
+      priority_distribution[DOWN] = 40;
+      priority_distribution[UP] = 10;
+      priority_distribution[RIGHT] = 10;
+      priority_distribution[LEFT] = 40;
+    }
+  else if (monster_row >= player_row && monster_col < player_col)
+    {
+      priority_distribution[DOWN] = 10;
+      priority_distribution[UP] = 40;
+      priority_distribution[RIGHT] = 40;
+      priority_distribution[LEFT] = 10;
+    }
+  else // if (monster_row >= player_row && monster_col >= player_col)
+    {
+      priority_distribution[DOWN] = 10;
+      priority_distribution[UP] = 40;
+      priority_distribution[RIGHT] = 10;
+      priority_distribution[LEFT] = 40;
+    }
+
+  int uniformRandomNumber = uniformRandomNumberGenerator ();
+
+  int cumulative_probability = 100;
+  int intelligent_direction;
+  for (int direction = 3; direction >= 0; direction--)
+    {
+      cumulative_probability -= priority_distribution[direction];
+      if (uniformRandomNumber >= cumulative_probability)
+	{
+	  intelligent_direction = direction;
+	  break;
+	}
+    }  
+
+  return intelligent_direction;// uniformRandomNumber;//
+
+}
+
 
 static void runGame ( char inputCommand )
 {
@@ -78,7 +137,7 @@ static void runGame ( char inputCommand )
 	      )
 	  // Random Direction Finder is called only when it hits a corner or wall
 	    {
-	      monster_move[monster_index] = randomDirectionFinder ();
+	      monster_move[monster_index] = randomDirectionFinder (monster_index);
 	      monster_next_position[monster_index] = findNextPosition ( monster_present_position, monster_move[monster_index] );
 
 	      if (monster_next_position[monster_index] == monster_present_position)
@@ -121,8 +180,9 @@ static void runGame ( char inputCommand )
 	  remaining_food--;
 	}
       else if (map[player_next_position] == POWR)
-	{
+	{	  
 	  map[player_next_position] = VOID;
+	  remaining_food--;
 	  // Player ate Power tablet, now it's monster killer time.
 	  monster_killer_time = KILLING_TIME_LIMIT;
 	}
